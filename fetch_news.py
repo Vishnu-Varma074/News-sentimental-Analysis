@@ -1,6 +1,11 @@
 import requests
 
-API_KEY = your_actual_key
+import os
+
+API_KEY = os.environ.get("API_KEY")
+
+if not API_KEY:
+    raise ValueError("API_KEY not set")
 
 
 url = f"https://newsapi.org/v2/everything?q=technology&language=en&apiKey={API_KEY}"
