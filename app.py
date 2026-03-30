@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # 🔑 Replace with your NewsAPI key
-API_KEY = "69d064f0759944d3a45538a68611fc06"
+API_KEY =your_actual_key
 
 # 🚀 Fetch News
 def get_news(topic):
