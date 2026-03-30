@@ -1,7 +1,8 @@
 from textblob import TextBlob
 import requests
 
-API_KEY = "69d064f0759944d3a45538a68611fc06"
+API_KEY = your_actual_key
+
 
 url = f"https://newsapi.org/v2/everything?q=technology&language=en&apiKey={API_KEY}"
 data = requests.get(url).json()
