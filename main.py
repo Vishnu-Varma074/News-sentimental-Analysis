@@ -5,7 +5,12 @@ from textblob import TextBlob
 app = FastAPI()
 
 # 🔑 Add your API key
-API_KEY = your_actual_key
+import os
+
+API_KEY = os.environ.get("API_KEY")
+
+if not API_KEY:
+    raise ValueError("API_KEY not set")
 
 
 # 📰 Fetch News
