@@ -1,26 +1,25 @@
 from fastapi import FastAPI, Query
 import requests
-from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
-# 🔑 Add your API key
-import os
+# 🔑 API Key
+API_KEY = os.getenv("NEWS_API_KEY")
 
-API_KEY = os.environ.get("API_KEY")
-
-if not API_KEY:
-    raise ValueError("API_KEY not set")
+# Initialize VADER
+analyzer = SentimentIntensityAnalyzer()
 
 
 # 📰 Fetch News
 def get_news(topic):
     url = f"https://newsapi.org/v2/everything?q={topic}&language=en&apiKey={API_KEY}"
-    
     response = requests.get(url)
     data = response.json()
-
-    print("DEBUG RESPONSE:", data)  # 👈 ADD THIS
 
     if data.get("status") != "ok":
         return []
@@ -28,21 +27,19 @@ def get_news(topic):
     return data.get("articles", [])
 
 
-# 🧠 Sentiment Analysis
+# 🧠 Sentiment Analysis using VADER
 def analyze_sentiment(articles):
     results = []
-
     pos = neg = neu = 0
 
     for article in articles:
         title = article.get("title", "")
+        score = analyzer.polarity_scores(title)["compound"]
 
-        polarity = TextBlob(title).sentiment.polarity
-
-        if polarity > 0:
+        if score > 0.05:
             sentiment = "Positive"
             pos += 1
-        elif polarity < 0:
+        elif score < -0.05:
             sentiment = "Negative"
             neg += 1
         else:
@@ -62,15 +59,15 @@ def analyze_sentiment(articles):
             "positive": pos,
             "negative": neg,
             "neutral": neu,
-            "positive_pct": round((pos/total)*100, 2),
-            "negative_pct": round((neg/total)*100, 2),
-            "neutral_pct": round((neu/total)*100, 2),
+            "positive_pct": round((pos / total) * 100, 2),
+            "negative_pct": round((neg / total) * 100, 2),
+            "neutral_pct": round((neu / total) * 100, 2),
         },
         "articles": results
     }
 
 
-# 🚀 API Endpoint
+# 🚀 API Endpoints
 @app.get("/")
 def home():
     return {"message": "News Sentiment API is running 🚀"}
